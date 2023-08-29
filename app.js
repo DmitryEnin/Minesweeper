@@ -2,8 +2,9 @@ document.addEventListener('DOMContentLoaded', () =>{
 
 const grid = document.querySelector('.grid')
 let width = 10
-let squares =[]
+let flags = 0
 let bombAmount = 20
+let squares =[]
 let isGameOver = false
 
 //create Board
@@ -25,7 +26,15 @@ function createBoard() {
         square.addEventListener('click',function(e) {
             click(square)
         })
+
+        //cntrl and right click
+        square.oncontextmenu = function(e){
+            e.preventDefault()
+            addFlag(square)
+        }
     }
+
+
 
     //add number
     for (let i = 0; i < squares.length; i++) {
@@ -56,6 +65,24 @@ function createBoard() {
 }
 
 createBoard()
+
+
+//add Flag with left click
+function addFlag(square){
+    if (isGameOver) return
+    if (!square.classList.contains('checked') && (flags < bombAmount)){
+        if (!square.classList.contains('flag')){
+            square.classList.add('flag')
+            square.innerHTML = '🚩'
+            flags ++
+            checkForWin()
+        } else {
+            square.classList.remove('flag')
+            square.innerHTML = ''
+            flags --
+        }
+    }
+}
 
 
 //click on squre action
@@ -95,7 +122,7 @@ function checkSquare(square, currentId) {
             click(newSquare)
         }
         if (currentId > 10) {
-            const newId =squares[parseInt(currentId) -width].id
+            const newId =squares[parseInt(currentId -width)].id
             const newSquare = document.getElementById(newId)
             click(newSquare)
         }
@@ -140,6 +167,20 @@ function gameOver(square) {
     })
 }
 
+//check for win
+function checkForWin(){
+    let matches = 0
+
+    for (let i = 0; i < squares.length; i++){
+        if (squares[i].classList.contains('flag') && squares[i].classList.contains('bomb')){
+            matches ++
+        } 
+        if (matches === bombAmount){
+            console.log('You Win!')
+            isGameOver = true
+        }
+    }
+}
 
 
 })
